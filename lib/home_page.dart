@@ -37,7 +37,33 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text(data[index].title.toString()),
+                          Row(
+                            children: [
+                              Text(
+                                data[index].title.toString(),
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                              Spacer(),
+                              GestureDetector(
+                                  onTap: () {
+                                    _editDialog(
+                                        data[index],
+                                        data[index].title.toString(),
+                                        data[index].description.toString());
+                                  },
+                                  child: Icon(Icons.edit)),
+                              GestureDetector(
+                                onTap: () {
+                                  delteData(data[index]);
+                                },
+                                child: Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                              )
+                            ],
+                          ),
                           Text(data[index].description.toString())
                         ],
                       ),
@@ -116,5 +142,66 @@ class _HomePageState extends State<HomePage> {
             ],
           );
         });
+  }
+
+  Future<void> _editDialog(
+      NotesModel notesmodel, String title, String description) async {
+    titleController.text = title;
+    despController.text = description;
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                        hintText: 'Enter title', border: OutlineInputBorder()),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    controller: despController,
+                    decoration: InputDecoration(
+                        hintText: 'Enter title', border: OutlineInputBorder()),
+                  )
+                ],
+              ),
+            ),
+            title: Text('Edit Notes'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel')),
+              TextButton(
+                  onPressed: () async {
+                    notesmodel.title = titleController.text.toString();
+                    notesmodel.description = despController.text.toString();
+                    notesmodel.save();
+                    // final data = NotesModel(
+                    //     title: titleController.text,
+                    //     description: despController.text);
+                    Navigator.pop(context);
+                    // final box = Boxes.getData();
+                    // box.add(data);
+
+                    // data.save();
+                    // print(box);
+                    // titleController.clear();
+                    // despController.clear();
+                  },
+                  child: Text('Edit'))
+            ],
+          );
+        });
+  }
+
+  void delteData(NotesModel notesModel) async {
+    await notesModel.delete();
   }
 }
