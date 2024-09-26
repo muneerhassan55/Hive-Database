@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive_nosql_database/boxes/boxes.dart';
 import 'package:hive_nosql_database/models/notes_model.dart';
 
@@ -22,30 +23,28 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Column(
-        children: [
-          // FutureBuilder(
-          //     future: Hive.openBox('Muneer'),
-          //     builder: (context, snapshot) {
-          //       return Expanded(
-          //         child: Column(
-          //           children: [
-          //             ListTile(
-          //               title: Text(snapshot.data!.get('name').toString()),
-          //               subtitle: Text(snapshot.data!.get('Age').toString()),
-          //               trailing: IconButton(
-          //                   onPressed: () {
-          //                     snapshot.data!.delete('name');
-          //                     setState(() {});
-          //                   },
-          //                   icon: Icon(Icons.edit)),
-          //             )
-          //           ],
-          //         ),
-          //       );
-          //     })
-        ],
-      ),
+      body: ValueListenableBuilder<Box<NotesModel>>(
+          valueListenable: Boxes.getData().listenable(),
+          builder: (context, box, _) {
+            var data = box.values.toList().cast<NotesModel>();
+            return ListView.builder(
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(data[index].title.toString()),
+                          Text(data[index].description.toString())
+                        ],
+                      ),
+                    ),
+                  );
+                });
+          }),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
         onPressed: () async {
